@@ -1,0 +1,37 @@
+version: '1'
+
+services:
+	postgres:
+		image: postgres:9.6
+		container_name: postgres
+		environment:
+			POSTGRES_USER: hela-b2c
+			POSTGRES_PASSWORD: J5brHrAXFLQSif0K
+			POSTGRES_DB: hela-b2c
+
+	hela-b2c:
+		build: .
+		image: chamaconekt/hela-b2c
+		links:
+		- postgres
+		container_name: hela-b2c
+		depends_on:
+			- postgres
+		environment:
+
+	nginx:
+		image: nginx:1.11.11-alpine
+		links:
+			- hela-b2c
+		container_name: nginx
+		command: nginx -g 'daemon off;' -c /etc/hela-b2c-nginx/nginx.conf
+		depends_on:
+			- hela-b2c
+		ports:
+			- 80:80
+		volumes_from:
+			- hela-b2c
+
+volumes:
+	hela-b2c-static-files:
+		driver:local
